@@ -287,10 +287,19 @@ namespace sol {
 		decltype(auto) get_or(Key&& key, T&& otherwise) const {
 			typedef decltype(get<T>("")) U;
 			optional<U> option = get<optional<U>>(std::forward<Key>(key));
+#if defined(_MSC_VER) && _MSC_VER <= 1900
+			if (option) {
+				U u{option.value()};
+				return u;
+			}
+			U u{std::forward<T>(otherwise)};
+			return u;
+#else
 			if (option) {
 				return static_cast<U>(option.value());
 			}
 			return static_cast<U>(std::forward<T>(otherwise));
+#endif
 		}
 
 		template <typename T, typename Key, typename D>
@@ -333,10 +342,19 @@ namespace sol {
 		decltype(auto) raw_get_or(Key&& key, T&& otherwise) const {
 			typedef decltype(raw_get<T>("")) U;
 			optional<U> option = raw_get<optional<U>>(std::forward<Key>(key));
+#if defined(_MSC_VER) && _MSC_VER <= 1900
+			if (option) {
+				U u{option.value()};
+				return u;
+			}
+			U u{std::forward<T>(otherwise)};
+			return u;
+#else
 			if (option) {
 				return static_cast<U>(option.value());
 			}
 			return static_cast<U>(std::forward<T>(otherwise));
+#endif
 		}
 
 		template <typename T, typename Key, typename D>
