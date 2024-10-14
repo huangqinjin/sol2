@@ -20,8 +20,8 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 // This file was generated with a script.
-// Generated 2018-11-28 08:50:22.534324 UTC
-// This header was generated with sol v2.20.6 (revision 9b782ff)
+// Generated 2024-10-14 16:09:55.824398 UTC
+// This header was generated with sol v2.20.6 (revision 7f17dbf5)
 // https://github.com/ThePhD/sol2
 
 #ifndef SOL_SINGLE_INCLUDE_HPP
@@ -1936,6 +1936,7 @@ namespace sol {
 #ifndef COMPAT53_INCLUDE_SOURCE
 #define COMPAT53_INCLUDE_SOURCE 1
 #endif // Build Compat Layer Inline
+
 // beginning of sol/compatibility/compat-5.3.h
 
 #ifndef KEPLER_PROJECT_COMPAT53_H_
@@ -3182,6 +3183,30 @@ COMPAT53_API void luaL_requiref(lua_State *L, const char *modname,
 
 // end of sol/compatibility/compat-5.3.h
 
+// beginning of sol/compatibility/compat-5.4.h
+
+#ifndef NOT_KEPLER_PROJECT_COMPAT54_H_
+#define NOT_KEPLER_PROJECT_COMPAT54_H_
+
+#if defined(__cplusplus) && !defined(COMPAT53_LUA_CPP)
+extern "C" {
+#endif
+#if defined(__cplusplus) && !defined(COMPAT53_LUA_CPP)
+}
+#endif
+
+#if defined(LUA_VERSION_NUM) && LUA_VERSION_NUM == 504
+
+#if !defined(LUA_ERRGCMM)
+/* So Lua 5.4 actually removes this, which breaks sol2...
+ man, this API is quite unstable...!
+*/
+#  define LUA_ERRGCMM (LUA_ERRERR + 2)
+#endif /* LUA_ERRGCMM define */
+
+#endif // Lua 5.4 only
+
+#endif // NOT_KEPLER_PROJECT_COMPAT54_H_// end of sol/compatibility/compat-5.4.h
 
 #endif // SOL_NO_COMPAT
 
@@ -6623,7 +6648,8 @@ namespace sol {
 			push_popper_n& operator=(const push_popper_n&) = delete;
 			push_popper_n& operator=(push_popper_n&&) = default;
 			~push_popper_n() {
-				lua_pop(L, t);
+				if (lua_gettop(L) > 0)
+					lua_pop(L, t);
 			}
 		};
 		template <>
@@ -6639,7 +6665,8 @@ namespace sol {
 				t.push();
 			}
 			~push_popper() {
-				t.pop();
+				if (lua_gettop(t.lua_state()) > 0)
+					t.pop();
 			}
 		};
 		template <typename T, typename C>
@@ -15570,10 +15597,19 @@ namespace sol {
 		decltype(auto) get_or(T&& otherwise) const {
 			typedef decltype(get<T>()) U;
 			optional<U> option = get<optional<U>>();
+#if defined(_MSC_VER) && _MSC_VER <= 1900
+			if (option) {
+				U u{option.value()};
+				return u;
+			}
+			U u{std::forward<T>(otherwise)};
+			return u;
+#else
 			if (option) {
 				return static_cast<U>(option.value());
 			}
 			return static_cast<U>(std::forward<T>(otherwise));
+#endif
 		}
 
 		template <typename T, typename D>
@@ -19991,7 +20027,8 @@ namespace sol {
 			: L(luastate) {
 			}
 			~clean() {
-				lua_pop(L, static_cast<int>(n));
+				if (lua_gettop(L) > 0)
+					lua_pop(L, static_cast<int>(n));
 			}
 		};
 		struct ref_clean {
@@ -20001,7 +20038,8 @@ namespace sol {
 			: L(luastate), n(n) {
 			}
 			~ref_clean() {
-				lua_pop(L, static_cast<int>(n));
+				if (lua_gettop(L) > 0)
+					lua_pop(L, static_cast<int>(n));
 			}
 		};
 		inline int fail_on_newindex(lua_State* L) {
@@ -20237,10 +20275,19 @@ namespace sol {
 		decltype(auto) get_or(Key&& key, T&& otherwise) const {
 			typedef decltype(get<T>("")) U;
 			optional<U> option = get<optional<U>>(std::forward<Key>(key));
+#if defined(_MSC_VER) && _MSC_VER <= 1900
+			if (option) {
+				U u{option.value()};
+				return u;
+			}
+			U u{std::forward<T>(otherwise)};
+			return u;
+#else
 			if (option) {
 				return static_cast<U>(option.value());
 			}
 			return static_cast<U>(std::forward<T>(otherwise));
+#endif
 		}
 
 		template <typename T, typename Key, typename D>
@@ -20283,10 +20330,19 @@ namespace sol {
 		decltype(auto) raw_get_or(Key&& key, T&& otherwise) const {
 			typedef decltype(raw_get<T>("")) U;
 			optional<U> option = raw_get<optional<U>>(std::forward<Key>(key));
+#if defined(_MSC_VER) && _MSC_VER <= 1900
+			if (option) {
+				U u{option.value()};
+				return u;
+			}
+			U u{std::forward<T>(otherwise)};
+			return u;
+#else
 			if (option) {
 				return static_cast<U>(option.value());
 			}
 			return static_cast<U>(std::forward<T>(otherwise));
+#endif
 		}
 
 		template <typename T, typename Key, typename D>
