@@ -86,7 +86,8 @@ namespace sol {
 			push_popper_n& operator=(const push_popper_n&) = delete;
 			push_popper_n& operator=(push_popper_n&&) = default;
 			~push_popper_n() {
-				lua_pop(L, t);
+				if (lua_gettop(L) > 0)
+					lua_pop(L, t);
 			}
 		};
 		template <>
@@ -102,7 +103,8 @@ namespace sol {
 				t.push();
 			}
 			~push_popper() {
-				t.pop();
+				if (lua_gettop(t.lua_state()) > 0)
+					t.pop();
 			}
 		};
 		template <typename T, typename C>

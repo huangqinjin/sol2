@@ -41,7 +41,8 @@ namespace sol {
 			: L(luastate) {
 			}
 			~clean() {
-				lua_pop(L, static_cast<int>(n));
+				if (lua_gettop(L) > 0)
+					lua_pop(L, static_cast<int>(n));
 			}
 		};
 		struct ref_clean {
@@ -51,7 +52,8 @@ namespace sol {
 			: L(luastate), n(n) {
 			}
 			~ref_clean() {
-				lua_pop(L, static_cast<int>(n));
+				if (lua_gettop(L) > 0)
+					lua_pop(L, static_cast<int>(n));
 			}
 		};
 		inline int fail_on_newindex(lua_State* L) {
