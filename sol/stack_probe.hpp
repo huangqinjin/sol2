@@ -72,7 +72,7 @@ namespace stack {
 			if (!maybe_indexable(L)) {
 				return probe(false, sofar);
 			}
-			return apply(std::index_sequence<I1, In...>(), sofar + 1, L, std::forward<Keys>(keys), -1);
+			return apply(std::index_sequence<I1, In...>(), sofar + 1, L, std::forward<Keys>(keys), lua_gettop(L));
 		}
 
 		template <typename Keys>
